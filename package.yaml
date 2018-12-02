@@ -27,9 +27,19 @@ library:
   source-dirs: src
 
 executables:
-  aoc18-hs-exe:
+  task1:
     main:                Main.hs
     source-dirs:         task1
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - aoc18-hs
+
+  task2:
+    main:                Main.hs
+    source-dirs:         task2
     ghc-options:
     - -threaded
     - -rtsopts
