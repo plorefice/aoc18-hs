@@ -14,7 +14,7 @@ main = do
   print
     . filter ((== False) . snd)
     . map (\f@(Fabric id' _ _) -> (id', overlaps fabric f))
-    $ fabric
+    $ fabric -- Task B
 
 parseFabric :: String -> Fabric
 parseFabric s = case parse fabric "" s of
@@ -39,11 +39,13 @@ gridify :: Fabric -> [(Int, Int)]
 gridify (Fabric _ (x, y) (w, h)) =
   [ (x', y') | x' <- [x .. x + w - 1], y' <- [y .. y + h - 1] ]
 
--- TODO: optimize me, this is overkill
 overlapping :: [Fabric] -> Int
 overlapping =
   length . filter ((> 1) . length) . group . sort . concatMap gridify
 
 overlaps :: [Fabric] -> Fabric -> Bool
 overlaps []       _  = False
-overlaps (f : fs) f' = (f /= f' && overlapping [f, f'] /= 0) || overlaps fs f'
+overlaps (f : fs) f' = (f /= f' && overlaps' f f') || overlaps fs f'
+ where
+  overlaps' (Fabric _ (x, y) (w, h)) (Fabric _ (x', y') (w', h')) =
+    x < (x' + w') && (x + w) > x' && y < (y' + h') && (y + h) > y'
