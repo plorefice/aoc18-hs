@@ -22,6 +22,7 @@ description:         Please see the README on GitHub at <https://github.com/plor
 dependencies:
 - base >= 4.7 && < 5
 - containers
+- megaparsec
 
 library:
   source-dirs: src
@@ -40,6 +41,16 @@ executables:
   task2:
     main:                Main.hs
     source-dirs:         task2
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - aoc18-hs
+
+  task3:
+    main:                Main.hs
+    source-dirs:         task3
     ghc-options:
     - -threaded
     - -rtsopts
