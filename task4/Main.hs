@@ -20,21 +20,32 @@ data Shift = Shift GuardId DateTime [Interval] deriving (Eq, Show)
 main :: IO ()
 main = do
   input <- getContents
-  let shifts = mergeShifts . map parseEvent . sort . lines $ input
-  print . uncurry (*) . findMostAsleep $ shifts
+  let ns = naps . mergeShifts . map parseEvent . sort . lines $ input
+  print . uncurry (*) . findMostAsleep $ ns -- Task A
+  print . (\(g, (m, _)) -> g * m) . findMostFrequent $ ns -- Task B
 
-findMostAsleep :: [Shift] -> (GuardId, Int)
-findMostAsleep shifts = (fst mostAsleep, minute)
+findMostAsleep :: Map.Map GuardId Interval -> (GuardId, Int)
+findMostAsleep m = (guard, minute)
  where
-  guards     = foldl insertShift Map.empty shifts
-  mostAsleep = maximumBy (compare `on` (length . snd)) . Map.toList $ guards
-  minute =
-    head . last . sortOn length . group . sort $ guards Map.! fst mostAsleep
+  guard  = fst . maximumBy (compare `on` (length . snd)) . Map.toList $ m
+  minute = head . last . sortOn length . group . sort $ m Map.! guard
 
-  insertShift m (Shift id' _ naps) = Map.alter
+findMostFrequent :: Map.Map GuardId Interval -> (GuardId, (Int, Int))
+findMostFrequent =
+  maximumBy (compare `on` (snd . snd)) . map frequency . Map.toList
+ where
+  frequency (g, []  ) = (g, (0, 0))
+  frequency (g, mins) = (g, (head (f mins), length (f mins)))
+
+  f = maximumBy (compare `on` length) . group . sort
+
+naps :: [Shift] -> Map.Map GuardId Interval
+naps = foldl f Map.empty
+ where
+  f m (Shift id' _ n') = Map.alter
     (\case
-      Nothing -> Just (concat naps)
-      Just n  -> Just (n ++ concat naps)
+      Nothing -> Just (concat n')
+      Just n  -> Just (n ++ concat n')
     )
     id'
     m
