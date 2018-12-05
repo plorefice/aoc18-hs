@@ -1,12 +1,17 @@
 module Main where
 
 import           Data.Char
-import           Debug.Trace
+import           Data.List
+import           Data.Function
 
 main :: IO ()
 main = do
   input <- getContents
-  print . length . process $ input
+  print . length . process $ input -- Task A
+  print
+    . minimumBy (compare `on` snd)
+    . map (\l -> (l, length . process . removePolymer input $ l))
+    $ ['a' .. 'z'] -- Task B
 
 process :: String -> String
 process xs = if xs == xs' then xs' else process xs'
@@ -18,3 +23,6 @@ process xs = if xs == xs' then xs' else process xs'
     else a : process' (b : xs)
 
   xs' = process' xs
+
+removePolymer :: String -> Char -> String
+removePolymer s c = filter (\a -> toLower a /= c) s
